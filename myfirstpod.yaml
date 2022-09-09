@@ -1,0 +1,13 @@
+# my-first-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+  labels:
+    app: webserver
+spec:
+  containers:
+  - name: pod-demo
+    image: jimmyfu87/fastapi_practice
+    ports:
+    - containerPort: 8000
