@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 php/
 receive_image/
+php_finish/
