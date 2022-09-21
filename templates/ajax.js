@@ -1,4 +1,5 @@
 //root_url = "http://localhost:3000";
+root_url = "http://localhost:8080";
 //root_url = 'http://140.119.19.122:3000'
 //root_url = "gamefishing.heroku.com"
 function bind_url(api_url, data, method) {
@@ -27,28 +28,26 @@ function bind_url(api_url, data, method) {
 }
 
 function register() {
-    // 按鈕音效
-    document.getElementById('click_sound').play();
     // start
-    let group_id = document.getElementById('GroupName').value;
-    console.log(group_id);
-    let game_id = document.getElementById("RoomID").value;
-    console.log(game_id);
-    let api_url = "/client/register";
-    let data = { 'group_id': group_id, 'game_id': game_id };
+    let member_id = document.getElementById('member_id').value;
+    let member_password = document.getElementById("member_password").value;
+    console.log(member_id);
+    console.log(member_password);
+    let api_url = "/product/";
+    let data = { 'member_id': member_id, 'member_password': member_password };
     let result_ls = bind_url(api_url, data, 'POST');
     let url = result_ls[0]
     let param = result_ls[1]
-    var req = new XMLHttpRequest();
-    req.open("POST", url, true);
-    req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    req.send(param);
-    req.onload = function() {
-        rep = JSON.parse(req.responseText);
-        if (rep["success"] == true) {
-            window.location = 'Client_Home_Action.html';
-        } else if (rep["success"] == false) {
-            alert(rep['message']);
+    let request = new XMLHttpRequest();
+    request.open("POST", url, true);
+    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    request.send(param);
+    request.onload = function() {
+        response = JSON.parse(request.responseText);
+        if (response["success"] == true) {
+            window.location = 'Product_List.html';
+        } else if (response["success"] == false) {
+            alert(response['message']);
         }
     }
 }

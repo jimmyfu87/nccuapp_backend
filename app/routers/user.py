@@ -1,16 +1,18 @@
-
 from http.client import HTTPException
 from typing import Optional
-from urllib import response
+import redis
 from fastapi import APIRouter, Body
 from sqlalchemy.sql import text
 from pydantic import BaseModel
 import json
 from ..env.db_connect import engine
+from ..env.config import redis
 from ..tool.authentication import get_hash_password
 from ..dao.user_dao import create_user_dao, check_user_exist_dao, login_dao
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
+
 
 class User(BaseModel):
     member_id: str
@@ -37,14 +39,16 @@ def login(user: User):
         hash_password = get_hash_password(user.member_password)
         login_response = login_dao(user.member_id, hash_password)
         if len(login_response) == 1:
-            response = json.dumps({"success": True})
+            hash_key = get_hash_password(user.member_id)
+            redis.setex(hash_key, 120, user.member_id)
+            response = JSONResponse(content={"success": True})
+            response.set_cookie(key="sid", value=hash_key)
             return response
         else:
-            raise HTTPException("Incorrect member_id or member_password!!")
-
+            return JSONResponse(content={"success": False, 'message': "Incorrect member id or member password!!"})
 
     elif len(check_user_exist_response) == 0:
-        raise HTTPException("{member_id} not existing member_id, please register it!!".format(member_id=user.member_id))
+        return JSONResponse(content={"success": False, 'message': "{member_id} is not a valid member id, please register it!!".format(member_id=user.member_id)})
 
 
 

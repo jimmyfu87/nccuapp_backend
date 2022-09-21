@@ -4,7 +4,27 @@
     <title>會員登入</title>
     <!-- <link rel="stylesheet" href="/stylesheets/style.css"> -->
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
-
+    <script>
+        function register() {
+            let member_id = document.getElementById('member_id').value;
+            let member_password = document.getElementById("member_password").value;
+            let api_url = "user/login";
+            let data = { 'member_id': member_id, 'member_password': member_password };
+            let param = JSON.stringify(data)
+            let request = new XMLHttpRequest();
+            request.open("POST", api_url, true);
+            request.setRequestHeader("Content-Type", "application/json");
+            request.send(param);
+            request.onload = function() {
+                response = JSON.parse(request.responseText);
+                if (response["success"] == true) {
+                    window.location = 'product';
+                } else if (response["success"] == false) {
+                    alert(response['message']);
+                }
+            }
+        }
+    </script>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
         integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
@@ -40,16 +60,16 @@
 
                     <form>
 
-                        <!-- Email input -->
+                        <!-- member_id input -->
                         <div class="form-outline mb-4">
-                            <input type="email" id="form3Example3" class="form-control form-control-lg"
-                                placeholder="Enter a valid email address" />
+                            <input type="member_id" id="member_id" class="form-control form-control-lg"
+                                placeholder="Enter member id" />
 
                         </div>
 
                         <!-- Password input -->
                         <div class="form-outline mb-3">
-                            <input type="password" id="form3Example4" class="form-control form-control-lg"
+                            <input type="password" id="member_password" class="form-control form-control-lg"
                                 placeholder="Enter password" />
 
                         </div>
@@ -66,7 +86,7 @@
                         </div>
 
                         <div class="text-center text-lg-start mt-4 pt-2">
-                            <button type="button" class="btn btn-primary btn-lg"
+                            <button type="button" class="btn btn-primary btn-lg" onclick="register();"
                                 style="padding-left: 2.5rem; padding-right: 2.5rem;">Login</button>
                             <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="Register.html"
                                     class="link-danger">Register</a></p>
@@ -81,10 +101,6 @@
             </div>
     </div>
 
-
-
-
-
     </section>
 
 
@@ -98,6 +114,7 @@
         </div>
     </footer>
     <!-- Bootstrap core JS-->
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

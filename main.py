@@ -19,7 +19,7 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/")
 def root(request: Request):
-    return templates.TemplateResponse("Product_List.html",{"request": request})
+    return templates.TemplateResponse("Login.html",{"request": request})
 
 
 @app.post("/predict", tags=["predict"])
