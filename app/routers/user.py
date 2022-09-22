@@ -1,7 +1,7 @@
 from http.client import HTTPException
 from typing import Optional
 import redis
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Request
 from sqlalchemy.sql import text
 from pydantic import BaseModel
 import json
@@ -22,15 +22,17 @@ class User(BaseModel):
 
 @router.post("/register", tags=["user"])
 def register(user: User):  
+    if user.member_id == "" or user.member_password == "" or user.member_email == "":
+        return JSONResponse(content={"success": False, 'message': "Value cannot be blank, please fill in!!"})
+    if " " in user.member_id or " " in user.member_password or " " in user.member_email:
+        return JSONResponse(content={"success": False, 'message': "Value cannot contains blank, please fill in!!"})
     check_user_exist_response = check_user_exist_dao(user.member_id)
     if len(check_user_exist_response) == 0:
         hash_password = get_hash_password(user.member_password)
         create_user_dao(user.member_id, hash_password, user.member_email)
-        response = json.dumps({"success": True})
-        return response
+        return JSONResponse(content={"success": True, 'message': "Register successfully"})
     else:
-        response = json.dumps({"success": False})
-        raise HTTPException("This member_id has already been used, please change it!!")
+        return JSONResponse(content={"success": False, 'message': "This member id or email has already been used, please change it!!"})
 
 @router.post("/login", tags=["user"])
 def login(user: User):
@@ -40,7 +42,7 @@ def login(user: User):
         login_response = login_dao(user.member_id, hash_password)
         if len(login_response) == 1:
             hash_key = get_hash_password(user.member_id)
-            redis.setex(hash_key, 120, user.member_id)
+            redis.setex(hash_key, 600, user.member_id)
             response = JSONResponse(content={"success": True})
             response.set_cookie(key="sid", value=hash_key)
             return response
@@ -49,6 +51,15 @@ def login(user: User):
 
     elif len(check_user_exist_response) == 0:
         return JSONResponse(content={"success": False, 'message': "{member_id} is not a valid member id, please register it!!".format(member_id=user.member_id)})
+
+
+@router.get("/logout", tags=['user'])
+def logout(request: Request):
+    if redis.exists(request.cookies['sid']):
+        redis.delete(request.cookies['sid'])
+        return JSONResponse(content={"success": True, 'message': "Logout Successfully"})
+    else:
+        return JSONResponse(content={"success": False, 'message': "Already logout!!"})
 
 
 
