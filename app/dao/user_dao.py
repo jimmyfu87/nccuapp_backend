@@ -1,7 +1,12 @@
 from ..env.db_connect import engine
 from sqlalchemy.sql import text
+from pydantic import BaseModel
+from typing import Optional
 
-
+class User(BaseModel):
+    member_id: str
+    member_password: str
+    member_email: Optional[str]
 
 def check_user_exist_dao(member_id: str):
    query = "SELECT * FROM User WHERE member_id=:member_id "

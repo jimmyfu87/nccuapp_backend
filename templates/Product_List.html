@@ -4,6 +4,7 @@
   <title>商品列表</title>
   <!-- <link rel="stylesheet" href="/stylesheets/style.css"> -->
   <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
@@ -29,7 +30,92 @@
             }
         }
     }
-</script>
+  </script>
+   <script>
+    function add_product_topool() {
+          let product_url = document.getElementById('product_url').value;
+          let api_url = "../product/add_product_topool";
+          let data = {'input_url': product_url};
+          let param = JSON.stringify(data)
+          let request = new XMLHttpRequest();
+          request.open("POST", api_url, true);
+  
+          request.setRequestHeader("Content-Type", "application/json");
+          request.send(param);
+          request.onload = function() {
+              response = JSON.parse(request.responseText);
+              if (response["success"] == true) {
+                  alert(response['message'])
+                  location.reload()
+              } else if (response["success"] == false) {
+                  alert(response['message']);
+                  location.reload()
+              }
+          }
+      }
+    </script>
+    <script>
+      $(document).ready(function(){
+        $("#table").on('click','.btn-danger',function(){
+            let currentRow = $(this).closest("tr"); 
+            let product_id = currentRow.attr('id')
+            // let product_name = currentRow.find("th:eq(0)").text();
+            // let product_price = currentRow.find("td:eq(0)").text(); 
+            // let channel_name = currentRow.find("td:eq(1)").text(); 
+            // let product_url = currentRow.find("td:eq(2)").find('a').attr('href')
+
+            let api_url = "../product/delete_product/";
+            let data = {'id': product_id};
+            let param = JSON.stringify(data)
+            let request = new XMLHttpRequest();
+            request.open("DELETE", api_url, true);
+            request.setRequestHeader("Content-Type", "application/json");
+            request.send(param);
+            request.onload = function() {
+                response = JSON.parse(request.responseText);
+                if (response["success"] == true) {
+                    alert(response['message'])
+                    location.reload()
+                } else if (response["success"] == false) {
+                    alert(response['message']);
+                    location.reload()
+                }
+            }
+        });
+      });
+   </script>
+    <script>
+      $(document).ready(function(){
+        $("#table").on('click','.btn-success',function(){
+            let currentRow = $(this).closest("tr"); 
+            let product_id = currentRow.attr('id')
+            let product_url = currentRow.find("td:eq(2)").find('a').attr('href')
+            let product_name = currentRow.find("th:eq(0)").text();
+            let product_price = currentRow.find("td:eq(0)").text(); 
+            // let channel_name = currentRow.find("td:eq(1)").text(); 
+            
+            let api_url = "../product/update_product/";
+            let data = {'input_url': product_url, 'id': product_id, 'original_product_name': product_name, 
+                        'original_product_price': product_price};
+            let param = JSON.stringify(data)
+            let request = new XMLHttpRequest();
+            request.open("PUT", api_url, true);
+            request.setRequestHeader("Content-Type", "application/json");
+            request.send(param);
+            request.onload = function() {
+                response = JSON.parse(request.responseText);
+                if (response["success"] == true) {
+                    alert(response['message'])
+                    location.reload()
+                } else if (response["success"] == false) {
+                    alert(response['message']);
+                    location.reload()
+                }
+            }
+        });
+      });
+   </script>
+
 
 </head>
 
@@ -49,40 +135,40 @@
                     <form class="row row-cols-lg-auto g-3 justify-content-center align-items-center mb-4 pb-2">
                       <div class="col-12">
                         <div class="form-outline">
-                          <input type="text" id="form1" class="form-control" / placeholder="輸入商品的URL">
+                          <input type="text" id="product_url" class="form-control" / placeholder="輸入商品的URL">
                         </div>
                       </div>
                       <br></br>
                       <br></br>
                       <div class="col-12">
-                        <button type="submit" class="btn btn-primary">Add Product</button>
+                        <button type="button" class="btn btn-primary" onclick="add_product_topool()">Add Product</button>
                       </div>
                     </form>
                     <hr>
                     </hr>
-                    <button type="submit" class="btn btn-success ms-1">Update All Products</button>
+                    <button type="button" class="btn btn-success ms-1">Update All Products</button>
                     <br></br>
-                    <table class="table mb-5">
+                    <table class="table mb-5" id="table">
                       <thead>
                         <tr>
-                          <th scope="col">名稱</th>
-                          <th scope="col">價格</th>
-                          <th scope="col">商城</th>
-                          <th scope="col">連結</th>
-                          <th scope="col">動作</th>
+                          <th scope="col" width="60%">名稱</th>
+                          <th scope="col" width="10%">價格</th>
+                          <th scope="col" width="10%">商城</th>
+                          <th scope="col" width="10%">連結</th>
+                          <th scope="col" width="10%">動作</th>
                         </tr>
                       </thead>
                       <tbody>
                         {%for product in product_rows%}
-                        <tr>
+                        <tr id={{product.id}}>
                           <th scope="row">{{product.product_name}}</th>
                           <td>{{product.product_price}}</td>
                           <td>{{product.channel_name}}</td>
                           <td><a href={{product.product_url}}>商品連結</a></td>
                           <td>
-                            <button type="submit" class="btn btn-success ms-1">Update</button>
+                            <button type="button" class="btn btn-success ms-1">Update</button>
                             <br></br>
-                            <button type="submit" class="btn btn-danger">Delete</button>
+                            <button type="button" class="btn btn-danger">Delete</button>
                           </td>
                         </tr>
                         {%endfor%}

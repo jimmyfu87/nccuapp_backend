@@ -8,16 +8,10 @@ import json
 from ..env.db_connect import engine
 from ..env.config import redis
 from ..tool.authentication import get_hash_password
-from ..dao.user_dao import create_user_dao, check_user_exist_dao, login_dao
+from ..dao.user_dao import create_user_dao, check_user_exist_dao, login_dao, User
 from fastapi.responses import JSONResponse
 
 router = APIRouter()
-
-
-class User(BaseModel):
-    member_id: str
-    member_password: str
-    member_email: Optional[str]
 
 
 @router.post("/register", tags=["user"])
@@ -42,7 +36,7 @@ def login(user: User):
         login_response = login_dao(user.member_id, hash_password)
         if len(login_response) == 1:
             hash_key = get_hash_password(user.member_id)
-            redis.setex(hash_key, 600, user.member_id)
+            redis.setex(hash_key, 1800, user.member_id)
             response = JSONResponse(content={"success": True})
             response.set_cookie(key="sid", value=hash_key)
             return response
