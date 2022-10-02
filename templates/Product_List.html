@@ -90,13 +90,12 @@
             let currentRow = $(this).closest("tr"); 
             let product_id = currentRow.attr('id')
             let product_url = currentRow.find("td:eq(2)").find('a').attr('href')
-            let product_name = currentRow.find("th:eq(0)").text();
-            let product_price = currentRow.find("td:eq(0)").text(); 
+            // let product_name = currentRow.find("th:eq(0)").text();
+            // let product_price = currentRow.find("td:eq(0)").text(); 
             // let channel_name = currentRow.find("td:eq(1)").text(); 
             
-            let api_url = "../product/update_product/";
-            let data = {'input_url': product_url, 'id': product_id, 'original_product_name': product_name, 
-                        'original_product_price': product_price};
+            let api_url = "../product/update_one_product/";
+            let data = {'input_url': product_url, 'id': product_id};
             let param = JSON.stringify(data)
             let request = new XMLHttpRequest();
             request.open("PUT", api_url, true);

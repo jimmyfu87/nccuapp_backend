@@ -7,7 +7,7 @@ import json
 from fastapi.responses import HTMLResponse
 from ..env.config import redis
 from ..dao.product_dao import get_member_product_dao, delete_product_dao, Product, \
-                              add_product_topool_dao, check_no_repeat_product_dao, update_product_dao, \
+                              add_product_topool_dao, check_no_repeat_product_dao, update_one_product_dao, \
                               get_one_product_dao
 from ..tool.crawl import web_crawl
 
@@ -116,8 +116,8 @@ def add_product_topool(request: Request, input_url: str = Body(...,embed=True)):
         return JSONResponse(content={'success': False, 'message': "No cookie!!"})
 
 
-@router.put("/update_product", tags=['product'])
-def update_product(request: Request, input_url: str = Body(...), id: str =Body(...)):
+@router.put("/update_one_product", tags=['product'])
+def update_one_product(request: Request, input_url: str = Body(...), id: str =Body(...)):
     if request.cookies:
         if 'sid' in list(request.cookies.keys()):
             session_id = request.cookies['sid']
@@ -141,7 +141,58 @@ def update_product(request: Request, input_url: str = Body(...), id: str =Body(.
                         change = False
                     try:
                         try: 
-                            response = update_product_dao(input_product, id)
+                            response = update_one_product_dao(input_product, id)
+                            if change:
+                                response['message'] = response['message'] + '\n' + 'Product info has changed!'
+                            else:
+                                response['message'] = response['message'] + '\n' + 'No product info changes!'
+
+                            return JSONResponse(content=response)
+                        except Exception as e:
+              
+                            return JSONResponse(content={'success': False, 'message': "Error occurs when add product to pool!"})
+                        
+                    except: 
+                        return JSONResponse(content={'success': False, 'message': "Error occurs when check repeated product!"})
+                else:
+                    ## url無法解析
+                    return JSONResponse(content={'success': False, 'message': str(response['message'])})
+                    
+            
+            else:
+                return JSONResponse(content={'success': False, 'message': "Cookie outdate, please login again!!"})
+        else:
+            return JSONResponse(content={'success': False, 'message': "No cookie!!"})
+            
+    else:
+        return JSONResponse(content={'success': False, 'message': "No cookie!!"})
+
+@router.put("/update_all_product", tags=['product'])
+def update_product(request: Request, input_url: str = Body(...), id: str =Body(...)):
+    if request.cookies:
+        if 'sid' in list(request.cookies.keys()):
+            session_id = request.cookies['sid']
+            member_id = redis.get(session_id)
+            if member_id:
+                response = web_crawl(input_url)
+                end_url = root_url + 'product/get_member_product'
+                data = requests.post(end_url, json = {'member_id':member_id, 'id':id})
+                original_product = json.loads(data.text)
+                if response['success']:
+                    product_info = response['product_info']
+                    product_name = product_info['product_name']
+                    product_price = product_info['product_price']
+                    product_url = product_info['product_url']
+                    channel_name = product_info['channel_name']
+                    input_product = Product(product_name=product_name, product_price=product_price, product_url=product_url,
+                                            member_id=member_id, channel_name=channel_name)
+                    if product_name != original_product['product_name'] or product_price != original_product['product_price']:
+                        change = True
+                    else:
+                        change = False
+                    try:
+                        try: 
+                            response = update_one_product_dao(input_product, id)
                             if change:
                                 response['message'] = response['message'] + '\n' + 'Product info has changed!'
                             else:

@@ -61,7 +61,7 @@ def add_product_topool_dao(product: Product):
         return {"success": False, "message": e} 
 
 
-def update_product_dao(product: Product, id: str):
+def update_one_product_dao(product: Product, id: str):
     query = "UPDATE Product SET product_name=:product_name, product_price=:product_price, product_url=:product_url, \
              member_id=:member_id, channel_name=:channel_name, upload_time=DATE_ADD(NOW(),INTERVAL 8 HOUR) \
              WHERE id=:id"
