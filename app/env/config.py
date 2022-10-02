@@ -1,7 +1,7 @@
 from passlib.hash import bcrypt 
 import redis
 
-root_url = "http://127.0.0.1:8080/"
+root_url = "http://127.0.0.1:9191/"
 redis_url = "localhost"
 redis_port = 6379
 hash_func = bcrypt.using(rounds=10, salt='ncc.ap.ncc/app4cc3/pp.')

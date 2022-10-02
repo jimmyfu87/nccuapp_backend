@@ -6,8 +6,6 @@ from starlette.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from app.tool import crawl
-
 app = FastAPI()
 
 app.include_router(example.router, prefix = '/example')
@@ -47,4 +45,4 @@ async def prediction(file: UploadFile = File(...)):
 
 
 if __name__ == '__main__':
-    uvicorn.run(app = 'main:app', host = '127.0.0.1' , port = 8080, reload= True, debug = True)
+    uvicorn.run(app = 'main:app', host = '127.0.0.1' , port = 9191, reload= True, debug = True)

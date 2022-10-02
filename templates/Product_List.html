@@ -13,7 +13,10 @@
   <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
   <!-- Bootstrap icons-->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet" />
-  <script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css">
+
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js"></script>
+    <script>
     function logout() {
         let api_url = '../user/logout';
         let request = new XMLHttpRequest();
@@ -55,8 +58,26 @@
       }
     </script>
     <script>
+      function update_all_product() {
+          let api_url = '../product/update_all_product';
+          let request = new XMLHttpRequest();
+          request.open("PUT", api_url, true);
+          request.send();
+          request.onload = function() {
+              response = JSON.parse(request.responseText);
+              if (response["success"] == true) {
+                  alert(response['message']);
+                  location.reload()
+              } else if (response["success"] == false) {
+                alert(response['message']);
+                location.reload()
+              }
+          }
+      }
+    </script>
+    <script>
       $(document).ready(function(){
-        $("#table").on('click','.btn-danger',function(){
+        $("#datatable").on('click','.btn-danger',function(){
             let currentRow = $(this).closest("tr"); 
             let product_id = currentRow.attr('id')
             // let product_name = currentRow.find("th:eq(0)").text();
@@ -86,7 +107,7 @@
    </script>
     <script>
       $(document).ready(function(){
-        $("#table").on('click','.btn-success',function(){
+        $("#datatable").on('click','.btn-success',function(){
             let currentRow = $(this).closest("tr"); 
             let product_id = currentRow.attr('id')
             let product_url = currentRow.find("td:eq(2)").find('a').attr('href')
@@ -145,16 +166,16 @@
                     </form>
                     <hr>
                     </hr>
-                    <button type="button" class="btn btn-success ms-1">Update All Products</button>
+                    <button type="button" class="btn btn-success ms-1" onclick="update_all_product()">Update All Products</button>
                     <br></br>
-                    <table class="table mb-5" id="table">
+                    <table class="table mb-5" id="datatable">
                       <thead>
                         <tr>
                           <th scope="col" width="60%">名稱</th>
                           <th scope="col" width="10%">價格</th>
                           <th scope="col" width="10%">商城</th>
-                          <th scope="col" width="10%">連結</th>
-                          <th scope="col" width="10%">動作</th>
+                          <th scope="col" width="10%"></th>
+                          <th scope="col" width="10%"></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -177,7 +198,23 @@
     </div>
 
   <!-- Page Content-->
+  <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
+  <script>
+      window.addEventListener('DOMContentLoaded', event => {
+      // Simple-DataTables
+      // https://github.com/fiduswriter/Simple-DataTables/wiki
 
+      const datatablesSimple = document.getElementById('datatable');
+      
+  });
+  $(document).ready(function() {
+    $('#datatable').dataTable({
+      "bInfo": false,
+      "bPaginate": false,
+      });
+    });
+
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
