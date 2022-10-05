@@ -15,6 +15,7 @@ app.include_router(product.router, prefix = '/product')
 app.include_router(user.router, prefix = '/user')
 
 templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 def root():
