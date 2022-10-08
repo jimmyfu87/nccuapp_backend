@@ -35,3 +35,8 @@ def reset_password_dao(member_id: str, member_new_password: str):
     
    except Exception as e:
       return {"success": False, "message": e} 
+
+def get_member_id_byemail_dao(member_email: str):
+   query = "SELECT member_id FROM User WHERE member_email=:member_email "
+   result = engine.execute(text(query), {"member_email": member_email}).mappings().all()
+   return result

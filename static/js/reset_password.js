@@ -25,7 +25,7 @@ function reset_password() {
                 toggleLoading(false);
                 $('#spinner-div').hide();
                 alert(response['message']);
-                window.location = '../user/Login.html';
+                window.location = '../Login.html';
             } else if (response["success"] == false) {
                 toggleLoading(false);
                 $('#spinner-div').hide();

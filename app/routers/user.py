@@ -6,10 +6,13 @@ import json
 from ..env.db_connect import engine
 from ..env.config import redis
 from ..tool.authentication import get_hash_password, verify_cookies
-from ..dao.user_dao import create_user_dao, check_user_exist_dao, login_dao, User, reset_password_dao
+from ..tool.send_email import send_email
+from ..dao.user_dao import create_user_dao, check_user_exist_dao, login_dao, User, reset_password_dao, get_member_id_byemail_dao
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
+import random, string
+
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -83,5 +86,33 @@ def reset_password(request: Request, member_new_password: str=Body(..., embed=Tr
         return JSONResponse(content={'message': verify_response['message']})
 
 
+@router.post("/send_reset_password_email")
+def send_reset_password_email(request: Request, member_email: str=Body(..., embed=True)):
+    try:
+        data = get_member_id_byemail_dao(member_email)  
+        if len(data) == 1:
+            member_id = data[0]['member_id']
+            member_new_password = ''.join(random.choice(string.ascii_letters + string.digits + string.punctuation) for _ in range(10))
+            member_new_password_hash = get_hash_password(member_new_password)
+            response = reset_password_dao(member_id, member_new_password_hash)
+            if response['success']:
+                try:
+                    response = send_email(member_email, member_id, member_new_password)
+                    if response['success']:
+                        return JSONResponse(content=response)
+                    else:
+                        return JSONResponse(content={'success':False, 'message': 'Error occurs when sending email'})
+                
+                except Exception as e:
+                    return JSONResponse(content={'success':False, 'message': e })
+            else:
+               return JSONResponse(content=response)
+        elif len(data) == 0:
+            return JSONResponse(content={'success':False, 'message': 'No member with this email' })
+        else:
+            return JSONResponse(content={'success':False, 'message': 'More than one member id with email' })
+
+    except Exception as e:
+        return JSONResponse(content={'success':False, 'message': e })
 
 
