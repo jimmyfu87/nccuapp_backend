@@ -14,7 +14,6 @@ function login() {
     $('#spinner-div').show();
     request.setRequestHeader("Content-Type", "application/json");
     request.send(param);
-    console.log(request)
     request.onload = function() {
         response = JSON.parse(request.responseText);
         if (response["success"] == true) {

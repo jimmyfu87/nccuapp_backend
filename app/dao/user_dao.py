@@ -20,6 +20,18 @@ def create_user_dao(member_id: str, member_password: str, member_email: str):
    return 
 
 def login_dao(member_id: str, member_password: str):
-   query = "SELECT * FROM User WHERE member_id= :member_id AND member_password= :member_password  "
+   query = "SELECT * FROM User WHERE member_id= :member_id AND member_password= :member_password"
    result = engine.execute(text(query), {"member_id": member_id, "member_password": member_password}).fetchall()
    return result
+
+def reset_password_dao(member_id: str, member_new_password: str):
+   query = "UPDATE User SET member_password=:member_new_password WHERE member_id=:member_id"
+   try:
+      result = engine.execute(text(query), {"member_new_password": member_new_password, "member_id": member_id})
+      if result.rowcount == 1:
+         return {"success": True, "message": "Reset password successfully!"} 
+      else:
+         return {"success": False,"message": "Reset password unsuccessfully!"} 
+    
+   except Exception as e:
+      return {"success": False, "message": e} 

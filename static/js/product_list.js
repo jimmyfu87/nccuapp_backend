@@ -1,12 +1,12 @@
 function toggleLoading(show) {
-    document.querySelector('.loading').style.display =	show ? 'block' : 'none';
+    document.querySelector('.loading').style.display = show ? 'block' : 'none';
 }
 
 function login() {
     let member_id = document.getElementById('member_id').value;
     let member_password = document.getElementById("member_password").value;
     let api_url = "user/login";
-    let data = {'member_id': member_id, 'member_password': member_password };
+    let data = { 'member_id': member_id, 'member_password': member_password };
     let param = JSON.stringify(data)
     let request = new XMLHttpRequest();
     request.open("POST", api_url, true);
@@ -15,7 +15,7 @@ function login() {
     request.setRequestHeader("Content-Type", "application/json");
     request.send(param);
     console.log(request)
-    request.onload = function() {
+    request.onload = function () {
         response = JSON.parse(request.responseText);
         if (response["success"] == true) {
             toggleLoading(false);
@@ -184,6 +184,16 @@ $(document).ready(function () {
     $('#datatable').dataTable({
         "bInfo": false,
         "bPaginate": false,
+        "autoWidth": false,
+        "columns": [
+            { "width": "70%" },
+            { "width": "10%" },
+            { "width": "10%" },
+            { "width": "10%" },
+            { "width": "10%" },
+            ]
+        // "columns": [
+        //     { "width": ["50%", "10%", "10%", "10%", "10%"] }]
 
     });
 });
@@ -192,6 +202,11 @@ $(document).ready(function () {
 
 
 
+
+function reset_password() {
+    window.location = '../user/Reset_Password.html';
+    
+}
 
 
 

@@ -12,12 +12,17 @@
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
     <!-- Bootstrap icons-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: gainsboro;
+        }
+    </style>
     <script>
         function register() {
             let member_id = document.getElementById('member_id').value;
             let member_password = document.getElementById("member_password").value;
             let member_email = document.getElementById("member_email").value;
-            let api_url = "user/register";
+            let api_url = "../user/register";
             let data = { 'member_id': member_id, 'member_password': member_password , 'member_email': member_email};
             let param = JSON.stringify(data)
             let request = new XMLHttpRequest();

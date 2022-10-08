@@ -1,4 +1,3 @@
-from urllib import response
 from fastapi import APIRouter, Body, Request
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -138,34 +137,27 @@ def update_one_product(request: Request, input_url: str = Body(...), id: str =Bo
 
 @router.put("/update_all_product", tags=['product'])
 def update_all_product(request: Request):
-    if request.cookies:
-        if 'sid' in list(request.cookies.keys()):
-            session_id = request.cookies['sid']
-            member_id = redis.get(session_id)
-            if member_id:
-                get_member_product_url = root_url + 'product/get_member_product'
-                data = requests.get(get_member_product_url, json = {'member_id':member_id})
-                original_products = json.loads(data.text)
-                change_product = 0
-                try:
-                    for original_product in original_products:
-                        update_one_product_url = root_url + 'product/update_one_product'
-                        response = requests.put(update_one_product_url, json = {'input_url':original_product['product_url'], 'id':original_product['id']}, cookies=request.cookies)
-                        response = json.loads(response.text)
-                        if response['change']:
-                            change_product = change_product + 1
-                    response['success'] = True
-                    response['message'] = 'Update all product successfully'
-                    response['message'] = response['message'] + '\n' + '{} product info has changed!'.format(change_product)
-                    return JSONResponse(content=response)
-                except:
-                    return JSONResponse(content={'success': False, 'message': "Error occurs when update product!"})
-            else:
-                return JSONResponse(content={'success': False, 'message': "Cookie outdate, please login again!!"})
-        else:
-            return JSONResponse(content={'success': False, 'message': "No cookie!!"})
-            
-    else:
-        return JSONResponse(content={'success': False, 'message': "No cookie!!"})
+    verify_response = verify_cookies(request)
+    if verify_response['success']:
+        member_id = verify_response['member_id']
+        get_member_product_url = root_url + 'product/get_member_product'
+        data = requests.get(get_member_product_url, json = {'member_id':member_id})
+        original_products = json.loads(data.text)
+        change_product = 0
+        try:
+            for original_product in original_products:
+                update_one_product_url = root_url + 'product/update_one_product'
+                response = requests.put(update_one_product_url, json = {'input_url':original_product['product_url'], 'id':original_product['id']}, cookies=request.cookies)
+                response = json.loads(response.text)
+                if response['change']:
+                    change_product = change_product + 1
+            response['success'] = True
+            response['message'] = 'Update all product successfully'
+            response['message'] = response['message'] + '\n' + '{} product info has changed!'.format(change_product)
+            return JSONResponse(content=response)
+        except:
+            return JSONResponse(content={'success': False, 'message': "Error occurs when update product!"})
 
+    else:
+        return JSONResponse(content={'message': verify_response['message']})
 

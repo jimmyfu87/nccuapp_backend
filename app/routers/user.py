@@ -1,5 +1,3 @@
-from http.client import HTTPException
-from typing import Optional
 import redis
 from fastapi import APIRouter, Body, Request
 from sqlalchemy.sql import text
@@ -7,11 +5,24 @@ from pydantic import BaseModel
 import json
 from ..env.db_connect import engine
 from ..env.config import redis
-from ..tool.authentication import get_hash_password
-from ..dao.user_dao import create_user_dao, check_user_exist_dao, login_dao, User
+from ..tool.authentication import get_hash_password, verify_cookies
+from ..dao.user_dao import create_user_dao, check_user_exist_dao, login_dao, User, reset_password_dao
 from fastapi.responses import JSONResponse
+from fastapi.templating import Jinja2Templates
+from datetime import datetime
 
 router = APIRouter()
+templates = Jinja2Templates(directory="templates")
+
+
+@router.get("/Reset_Password.html")
+def reset_password_view(request: Request):
+    return templates.TemplateResponse("Reset_Password.html",{"request": request})
+
+
+@router.get("/Forget_Password.html")
+def forget_password_view(request: Request):
+    return templates.TemplateResponse("Forget_Password.html",{"request": request})
 
 
 @router.post("/register", tags=["user"])
@@ -35,7 +46,7 @@ def login(user: User):
         hash_password = get_hash_password(user.member_password)
         login_response = login_dao(user.member_id, hash_password)
         if len(login_response) == 1:
-            hash_key = get_hash_password(user.member_id)
+            hash_key = get_hash_password(user.member_id + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
             redis.setex(hash_key, 1800, user.member_id)
             response = JSONResponse(content={"success": True})
             response.set_cookie(key="sid", value=hash_key)
@@ -58,45 +69,19 @@ def logout(request: Request):
 
 
 
+@router.patch("/reset_password")
+def reset_password(request: Request, member_new_password: str=Body(..., embed=True)):
+    verify_response = verify_cookies(request)
+    if verify_response['success']:
+        member_id = verify_response['member_id']
+        member_new_password = get_hash_password(member_new_password)
+        response = reset_password_dao(member_id, member_new_password)
+        if response['success']:
+            redis.delete(request.cookies['sid'])
+        return JSONResponse(content=response)
+    else:
+        return JSONResponse(content={'message': verify_response['message']})
 
 
-@router.post("/delete", tags=["card_relation"])
-def delete_card_relation(id: str = Body(...,embed=True)):
-    query = "DELETE FROM Card_relationship WHERE id=:id"
-    engine.execute(text(query), {"id":id})
-    response = json.dumps({"success": True})
-    return response
 
 
-## query paramter
-@router.get("/query_parameter")
-def get_user(member_id: str):
-    query = "SELECT * FROM User WHERE member_id= :member_id "
-    response = engine.execute(text(query), {"member_id":member_id}).fetchall()
-    return response
-
-
-## path paramter
-@router.get("/path_parameter/{member_id}")
-def get_user(member_id: str):
-    query = "SELECT * FROM User WHERE member_id= :member_id "
-    response = engine.execute(text(query), {"member_id":member_id}).fetchall()
-    return response
-
-## 多個參數用model塞法
-class User(BaseModel):
-    member_id: str
-    member_password: str
-
-@router.get("/body/model")
-def get_user(user: User):
-    query = "SELECT * FROM User WHERE member_id= :member_id and member_password= :member_password "
-    response = engine.execute(text(query), {"member_id":user.member_id, "member_password":user.member_password}).fetchall()
-    return response
-
-## body內塞單個參數，需要定義embed=True，才會使API需要資料變成json格式
-@router.get("/body/no_model")
-def get_user(member_id: str = Body(...,embed=True)):
-    query = "SELECT * FROM User WHERE member_id= :member_id"
-    response = engine.execute(text(query), {"member_id":member_id}).fetchall()
-    return response

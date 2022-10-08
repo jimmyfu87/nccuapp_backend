@@ -22,16 +22,14 @@ def root():
     return RedirectResponse('Login.html')
 
 
-
 @app.get("/Login.html")
 def login_view(request: Request):
     return templates.TemplateResponse("Login.html",{"request": request})
 
 
 @app.get("/Register.html")
-def register(request: Request):
+def register_view(request: Request):
     return templates.TemplateResponse("Register.html",{"request": request})
-
 
 @app.post("/predict", tags=["predict"])
 async def prediction(file: UploadFile = File(...)):

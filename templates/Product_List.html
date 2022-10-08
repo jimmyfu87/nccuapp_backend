@@ -24,6 +24,7 @@
       border-radius: 1em;
       white-space: normal;
       background-color: white;
+      width: 100%;
     }
 
     html,
@@ -69,13 +70,16 @@
 
 </head>
 
-<body>
+<body onload="">
   <!-- Responsive navbar-->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container px-lg-12">
-      <a class="navbar-brand text-center">{{member_id}}的商品列表</a>
-      <button background-color="black" onclick="logout()">登出</button>
-
+      <a class="navbar-brand text-left">{{member_id}}的商品列表</a>
+      <div class="btn-group" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-secondary" onclick="reset_password()">重設密碼</button>
+        <button type="button" class="btn btn-secondary" onclick="logout()">登出</button>
+        
+      </div>
     </div>
     </div>
   </nav>
@@ -85,13 +89,13 @@
     <div class="loading">
       <div class="mask"></div>
       <div id="spinner-div" class="pt-5">
-        <div >
+        <div>
           <button class="btn btn-primary" type="button" disabled>
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             <span class="visually-hidden">Loading...</span>
           </button>
         </div>
-    
+
       </div>
     </div>
     <br></br>
@@ -114,20 +118,20 @@
 
     <br></br>
 
-    <div class="card">
+    <div class="card" id="datatable_card">
       <div class="card-header">
         <button type="button" class="btn btn-success ms-1 btn-block" onclick="update_all_product()">Update All
           Products</button>
       </div>
       <div class="card-body">
-        <table class="table mb-5" id="datatable">
+        <table class="table table-bordered table-lg" id="datatable">
           <thead>
             <tr>
-              <th scope="col" width="60%">名稱</th>
-              <th scope="col" width="10%">價格</th>
-              <th scope="col" width="10%">商城</th>
-              <th scope="col" width="10%"></th>
-              <th scope="col" width="10%"></th>
+              <th scope="col" >名稱</th>
+              <th scope="col" >價格</th>
+              <th scope="col" >商城</th>
+              <th scope="col" ></th>
+              <th scope="col" ></th>
             </tr>
           </thead>
           <tbody>
@@ -149,7 +153,6 @@
       </div>
 
       <div class="card-footer text-center">
-
       </div>
 
     </div>
