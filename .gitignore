@@ -3,3 +3,4 @@ __pycache__/
 php/
 receive_image/
 php_finish/
+.vscode/

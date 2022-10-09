@@ -3,10 +3,12 @@
 FROM python:3.7
 
 
-COPY ./app /fastapi_project/app
-COPY ./requirements.txt /fastapi_project
+COPY ./app /iWantgo/app
+COPY ./static /iWantgo/static
+COPY ./templates /iWantgo/templates
+COPY ./requirements.txt /iWantgo
 
-WORKDIR /fastapi_project
+WORKDIR /iWantgo
 
 RUN pip install -r requirements.txt
 
