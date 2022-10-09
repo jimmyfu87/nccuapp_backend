@@ -12,10 +12,12 @@ from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
 import random, string
+from ..env.config import get_logger
 
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+# logger = get_logger('user')
 
 
 @router.get("/Reset_Password.html")
@@ -30,6 +32,7 @@ def forget_password_view(request: Request):
 
 @router.post("/register", tags=["user"])
 def register(user: User):  
+    # logger.info(user)
     if user.member_id == "" or user.member_password == "" or user.member_email == "":
         return JSONResponse(content={"success": False, 'message': "Value cannot be blank, please fill in!!"})
     if " " in user.member_id or " " in user.member_password or " " in user.member_email:
@@ -44,6 +47,7 @@ def register(user: User):
 
 @router.post("/login", tags=["user"])
 def login(user: User):
+    # logger.info(user)
     check_user_exist_response = check_user_exist_dao(user.member_id)
     if len(check_user_exist_response) == 1:
         hash_password = get_hash_password(user.member_password)
