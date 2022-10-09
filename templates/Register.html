@@ -13,33 +13,46 @@
     <!-- Bootstrap icons-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet" />
     <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
         body {
             background-color: gainsboro;
         }
-    </style>
-    <script>
-        function register() {
-            let member_id = document.getElementById('member_id').value;
-            let member_password = document.getElementById("member_password").value;
-            let member_email = document.getElementById("member_email").value;
-            let api_url = "../user/register";
-            let data = { 'member_id': member_id, 'member_password': member_password, 'member_email': member_email };
-            let param = JSON.stringify(data)
-            let request = new XMLHttpRequest();
-            request.open("POST", api_url, true);
-            request.setRequestHeader("Content-Type", "application/json");
-            request.send(param);
-            request.onload = function () {
-                response = JSON.parse(request.responseText);
-                if (response["success"] == true) {
-                    alert(response['message'])
-                    window.location = '../Login.html';
-                } else if (response["success"] == false) {
-                    alert(response['message']);
-                }
-            }
+
+        .loading {
+            position: absolute;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
         }
-    </script>
+
+        .loading .mask {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #444;
+            opacity: 0.5;
+        }
+
+        #spinner-div {
+            position: fixed;
+            display: none;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 2;
+        }
+    </style>
 
 </head>
 
@@ -55,15 +68,25 @@
     <!-- Header-->
     <br></br>
     <div class="container text-center">
+        <div class="loading">
+            <div class="mask"></div>
+            <div id="spinner-div" class="pt-5">
+                <div>
+                    <button class="btn btn-primary" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span class="visually-hidden">Loading...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="col">
-
             </div>
             <div class="col">
 
                 <form>
 
-                    <!-- Member ㄎㄛ input -->
+                    <!-- Member  input -->
                     <div class="form-outline mb-4">
                         <input type="email" id="member_id" class="form-control form-control-lg"
                             placeholder="Enter member id" />
@@ -121,6 +144,7 @@
     </footer>
     <!-- Bootstrap core JS-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', path='js/register.js') }}"></script>
 </body>
 
 </html>

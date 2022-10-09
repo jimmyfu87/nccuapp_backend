@@ -22,7 +22,6 @@ function reset_password() {
         }).then(function (promise_result) {
             return promise_result.json();
         }).then(function (response) {
-            console.log('yo')
             if (response["success"] == true) {
                 toggleLoading(false);
                 $('#spinner-div').hide();
