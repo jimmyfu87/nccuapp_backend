@@ -1,26 +1,28 @@
 function toggleLoading(show) {
-    document.querySelector('.loading').style.display =	show ? 'block' : 'none';
+    document.querySelector('.loading').style.display = show ? 'block' : 'none';
 }
 
 function reset_password() {
     let member_new_password = document.getElementById("member_new_password").value;
     let member_new_password2 = document.getElementById("member_new_password2").value;
-    if (member_new_password != member_new_password2){
+    if (member_new_password != member_new_password2) {
         alert('Two Passwords are not the same, please confirm again');
     }
-    else{
+    else {
         let api_url = "../user/reset_password";
-        let data = {'member_new_password': member_new_password};
-        let param = JSON.stringify(data)
-        let request = new XMLHttpRequest();
-        request.open("PATCH", api_url, true);
+        let data = { 'member_new_password': member_new_password };
         toggleLoading(true);
         $('#spinner-div').show();
-        request.setRequestHeader("Content-Type", "application/json");
-        request.send(param);
-        console.log(request)
-        request.onload = function() {
-            response = JSON.parse(request.responseText);
+        fetch(api_url, {
+            method: 'PATCH',
+            headers: new Headers({
+                'Content-Type': "application/json"
+            }),
+            body: JSON.stringify(data)
+        }).then(function (promise_result) {
+            return promise_result.json();
+        }).then(function (response) {
+            console.log('yo')
             if (response["success"] == true) {
                 toggleLoading(false);
                 $('#spinner-div').hide();
@@ -31,8 +33,8 @@ function reset_password() {
                 $('#spinner-div').hide();
                 alert(response['message']);
             }
-        }
+        }).catch(function (err) {
+            console.log(err);
+        });
     }
-
-
 }

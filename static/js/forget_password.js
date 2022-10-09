@@ -1,22 +1,23 @@
 function toggleLoading(show) {
-    document.querySelector('.loading').style.display =	show ? 'block' : 'none';
+    document.querySelector('.loading').style.display = show ? 'block' : 'none';
 }
 
-function send_reset_password_email() {
+function send_reset_password_email()  {
     let member_email = document.getElementById("member_email").value;
     let api_url = "../user/send_reset_password_email";
-    let data = {'member_email': member_email};
-    let param = JSON.stringify(data)
-    let request = new XMLHttpRequest();
-    request.open("POST", api_url, true);
+    let data = { 'member_email': member_email };
     toggleLoading(true);
     $('#spinner-div').show();
-    request.setRequestHeader("Content-Type", "application/json");
-    request.send(param);
-    console.log(request)
-    request.onload = function() {
-        response = JSON.parse(request.responseText);
-        console.log(response)
+    fetch(api_url, {
+        method: 'POST',
+        headers: new Headers({
+            'Content-Type': "application/json"
+        }),
+        body: JSON.stringify(data)
+    }).then(function (promise_result) {
+        return promise_result.json();
+    }).then(function (response) {
+        console.log('yo')
         if (response["success"] == true) {
             toggleLoading(false);
             $('#spinner-div').hide();
@@ -27,5 +28,7 @@ function send_reset_password_email() {
             $('#spinner-div').hide();
             alert(response['message']);
         }
-    }
+    }).catch(function(err) {
+        console.log(err);
+    });
 }
