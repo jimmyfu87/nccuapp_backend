@@ -1,7 +1,12 @@
 import requests
 import json
+from ..env.config import get_logger
+
+logger = get_logger('crawl')
 
 def web_crawl(input_url: str):
+    logger.info('web_crawl()')
+    logger.info('input_url: {}'.format(input_url))
     if "pchome.com.tw" in input_url:                    
         response = crawl_pchome(input_url)
     elif ("https://shopee.tw/" in input_url) and ("-i." in input_url):
@@ -16,6 +21,8 @@ def web_crawl(input_url: str):
     return response
 
 def crawl_pchome(input_url: str):
+    logger.info('crawl_pchome()')
+    logger.info('input_url: {}'.format(input_url))
     product_url = input_url
     try:
         if "?fq" in product_url:
@@ -32,9 +39,12 @@ def crawl_pchome(input_url: str):
         return {'success': True, 'product_info': {'product_name': product_name, 'product_price': product_price, 
                                      'product_url':input_url, 'channel_name': 'Pchome' }}
     except Exception as e:
+        logger.error("Error occurs when crawl_pchome(), error message: {}".format(e))
         return {'success': False, 'message': e}
     
 def crawl_shopee(input_url: str):
+    logger.info('crawl_shopee()')
+    logger.info('input_url: {}'.format(input_url))
     product_url = input_url
     pos1 = product_url.index("i.")
     product_url =  product_url[pos1+2:]
@@ -51,5 +61,6 @@ def crawl_shopee(input_url: str):
         return {'success': True, 'product_info': {'product_name': product_name, 'product_price': product_price, 
                 'product_url':input_url, 'channel_name': '蝦皮購物' }}
     except Exception as e:
+        logger.error("Error occurs when crawl_shopee(), error message: {}".format(e))
         return {'success': False, 'message': e}
     

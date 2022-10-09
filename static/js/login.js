@@ -19,7 +19,6 @@ function login() {
         return promise_result.json();
     }).then(function (response) {
         if (response["success"] == true) {
-            console.log('success')
             toggleLoading(false);
             $('#spinner-div').hide();
             window.location = '../product';

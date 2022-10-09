@@ -21,9 +21,13 @@ function register() {
         return promise_result.json();
     }).then(function (response) {
         if (response["success"] == true) {
+            toggleLoading(false);
+            $('#spinner-div').hide();
             alert(response['message'])
             window.location = '../Login.html';
         } else if (response["success"] == false) {
+            toggleLoading(false);
+            $('#spinner-div').hide();
             alert(response['message']);
         }
     }).catch(function(err) {

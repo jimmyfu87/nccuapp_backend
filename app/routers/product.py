@@ -23,35 +23,12 @@ def get_member_product_view(request: Request):
     verify_response = verify_cookies(request)
     if verify_response['success']:
         member_id = verify_response['member_id']
-        get_member_product_url = root_url + 'product/get_member_product'
-        all_data = requests.get(get_member_product_url, json = {'member_id':member_id})
-        all_data_array = json.loads(all_data.text)
-        logger.info('all_data_array: {}'.format(all_data_array))
-        logger.info('member_id: {}'.format(member_id))
+        all_data_array = get_member_product_dao(member_id)
         return templates.TemplateResponse("Product_List.html",{"request": request, "product_rows": all_data_array,
                                                                 "member_id": member_id})
     else:
         logger.error('Error occurs when get_member_product_view(), error message: {}'.format(verify_response['message']))
         return JSONResponse(content={'message': 'Error occurs when get product list view, please login again'})
-
-
-@router.get("/get_member_product", tags=['product'])   
-def get_member_product(member_id: str = Body(..., embed=True)):
-    logger.info('get_member_product()')
-    logger.info('member_id:{}')
-    data = get_member_product_dao(member_id)
-    logger.info('data: {}'.format(data))
-    return data
-
-
-@router.post("/get_one_product", tags=['product'])   
-def get_one_product(member_id: str = Body(..., embed=True), id: str = Body(..., embed=True)):
-    logger.info('get_one_product()')
-    logger.info('member_id: {}'.format(member_id))
-    logger.info('id: {}'.format(id))
-    data = get_one_product_dao(member_id, id)
-    logger.info('data: {}'.format(data))
-    return data
 
 
 @router.delete("/delete_product", tags=['product'])   
@@ -108,7 +85,7 @@ def add_product_topool(request: Request, input_url: str = Body(...,embed=True)):
                 return JSONResponse(content={'success': False, 'message': "Error occurs when check repeated product!"})
         else:
             ## url無法解析
-            logger.error("Error occurs when add_product_topool(): {}, error message: {}".format(str(response['message'])))
+            logger.error("Error occurs when add_product_topool(), error message: {}".format(str(response['message'])))
             return JSONResponse(content={'success': False, 'message': str(response['message'])})
     else:
         logger.error('Error occurs when add_product_topool(), error message: {}'.format(verify_response['message']))
@@ -124,9 +101,7 @@ def update_one_product(request: Request, input_url: str = Body(...), id: str =Bo
     if verify_response['success']:
         member_id = verify_response['member_id']
         response = web_crawl(input_url)
-        get_one_product_url = root_url + 'product/get_one_product'
-        data = requests.post(get_one_product_url, json = {'member_id':member_id, 'id':id})
-        original_product = json.loads(data.text)[0]
+        original_product = get_one_product_dao(member_id, id)[0]
         if response['success']:
             product_info = response['product_info']
             product_name = product_info['product_name']
@@ -151,16 +126,17 @@ def update_one_product(request: Request, input_url: str = Body(...), id: str =Bo
                     logger.info('response:{}'.format(response))
                     return JSONResponse(content=response)
                 except Exception as e:
-                    logger.error("Error occurs when update_one_product(): {}, error message: {}".format(e))
-                    return JSONResponse(content={'success': False, 'message': "Error occurs when add product to pool!"})
+                    logger.error("Error occurs when update_one_product(), error message: {}".format(e))
+                    return JSONResponse(content={'success': False, 'message': "Error occurs when update one product"})
                 
             except Exception as e: 
-                logger.error("Error occurs when update_one_product(): {}, error message: {}".format(e))
-                return JSONResponse(content={'success': False, 'message': "Error occurs when check repeated product!"})
+                logger.error("Error occurs when update_one_product(), error message: {}".format(e))
+                return JSONResponse(content={'success': False, 'message': "Error occurs when update one product"})
         else:
             ## url無法解析
-            logger.error("Error occurs when add_product_topool(): {}, error message: {}".format(str(response['message'])))
-            return JSONResponse(content={'success': False, 'message': str(response['message'])})
+            logger.error("Error occurs when update_one_product(), error message: {}".format(str(response['message'])))
+            return JSONResponse(content={'success': False, 'message': 'Update product unsuccessfully!' + '\n'+ 
+                                                                      'The product may be moved from this website, please delete this item.'})
     else:
         logger.error('Error occurs when update_one_product(), error message: {}'.format(verify_response['message']))
         return JSONResponse(content={'message': 'Error occurs when update one product, please login again'})
@@ -173,9 +149,7 @@ def update_all_product(request: Request):
     verify_response = verify_cookies(request)
     if verify_response['success']:
         member_id = verify_response['member_id']
-        get_member_product_url = root_url + 'product/get_member_product'
-        data = requests.get(get_member_product_url, json = {'member_id':member_id})
-        original_products = json.loads(data.text)
+        original_products = get_member_product_dao(member_id)
         change_product = 0
         try:
             for original_product in original_products:
@@ -190,8 +164,8 @@ def update_all_product(request: Request):
             logger.info('response:{}'.format(response))
             return JSONResponse(content=response)
         except Exception as e:
-            logger.error("Error occurs when update_all_product(): {}, error message: {}".format(e))
-            return JSONResponse(content={'success': False, 'message': "Error occurs when update all product!"})
+            logger.error("Error occurs when update_all_product(), error message: {}".format(e))
+            return JSONResponse(content={'success': False, 'message': "Error occurs when update all product, please update product one by one."})
 
     else:
         logger.error('Error occurs when update_all_product(), error message: {}'.format(verify_response['message']))
