@@ -1,5 +1,5 @@
 from typing import Optional
-from ..env.db_connect import engine
+from ..env.config import engine
 from sqlalchemy.sql import text
 from pydantic import BaseModel
 from ..env.config import get_logger

@@ -5,8 +5,8 @@ from sqlalchemy import create_engine
 
 # MySQL
 root_url = "http://127.0.0.1:8000/"
-# db_host = 'host.docker.internal'
-db_host = 'localhost'
+db_host = 'host.docker.internal'
+# db_host = 'localhost'
 db_username = 'root'
 db_password = 'example'
 db_port = '3306'
@@ -17,8 +17,8 @@ engine = create_engine(db_url)
 
 
 # Redis
-# redis_url = "host.docker.internal"
-redis_url = "localhost"
+redis_url = "host.docker.internal"
+# redis_url = "localhost"
 redis_port = 6379
 pool = redis.ConnectionPool(host=redis_url, port=redis_port, decode_responses=True)
 redis = redis.Redis(connection_pool=pool) 

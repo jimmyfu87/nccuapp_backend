@@ -151,6 +151,8 @@ def update_all_product(request: Request):
         member_id = verify_response['member_id']
         original_products = get_member_product_dao(member_id)
         change_product = 0
+        if len(original_products) == 0:
+            return JSONResponse(content={'success': False, 'message': "There is no product in your pool."})
         try:
             for original_product in original_products:
                 update_one_product_url = root_url + 'product/update_one_product'

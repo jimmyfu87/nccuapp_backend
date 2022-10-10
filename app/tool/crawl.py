@@ -55,7 +55,9 @@ def crawl_shopee(input_url: str):
         itemid = product_url[pos2+1:pos3]
         product_url = "https://shopee.tw/api/v4/item/get?itemid="+itemid+"&shopid="+shopid;
     try:
-        r_text = json.loads(requests.get(product_url).text)['data']
+        r = requests.get(product_url)
+        r.encoding = 'utf-8'
+        r_text = json.loads(r.text)['data']
         product_name = r_text['name']
         product_price = str(r_text['price_max'])[0:-5]
         return {'success': True, 'product_info': {'product_name': product_name, 'product_price': product_price, 

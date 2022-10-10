@@ -1,5 +1,5 @@
-from fastapi import FastAPI, File, UploadFile, Request
-from app.routers import example, card, card_relation, product, user
+from fastapi import FastAPI, Request
+from app.routers import product, user
 import uvicorn
 from starlette.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -32,4 +32,4 @@ def register_view(request: Request):
 
 
 if __name__ == '__main__':
-    uvicorn.run(app = 'main:app', host = '127.0.0.1' , port = 8000, reload= True, debug = True)
+    uvicorn.run(app = 'main:app', host = '0.0.0.0' , port = 8000, reload= True, debug = True)

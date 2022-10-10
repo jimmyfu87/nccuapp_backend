@@ -1,5 +1,5 @@
 from asyncio.log import logger
-from ..env.db_connect import engine
+from ..env.config import engine
 from sqlalchemy.sql import text
 from pydantic import BaseModel
 from typing import Optional
@@ -27,7 +27,7 @@ def check_member_id_email_exist_dao(member_id: str, member_email: str):
 def check_member_id_exist_dao(member_id: str):
    logger.info('check_member_id_exist_dao()')
    logger.info('member_id: {}'.format(member_id))
-   query = "SELECT * FROM User WHERE member_id=:member_id OR "
+   query = "SELECT * FROM User WHERE member_id=:member_id "
    try:
       result = engine.execute(text(query), {"member_id": member_id}).mappings().all()
       return result
