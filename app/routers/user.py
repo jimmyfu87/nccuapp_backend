@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
 import random, string
-from ..env.config import get_logger
+from ..env.config import get_logger, login_time_sec
 
 
 router = APIRouter()
@@ -52,8 +52,8 @@ def login(user: User):
         hash_password = get_hash_password(user.member_password)
         login_response = login_dao(user.member_id, hash_password)
         if len(login_response) == 1:
-            hash_key = get_hash_password(user.member_id + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-            redis.setex(hash_key, 1800, user.member_id)
+            hash_key = get_hash_password(user.member_id + datetime.now().strftime('%Y-%m-%d'))
+            redis.setex(hash_key, login_time_sec*10, user.member_id)
             response = JSONResponse(content={"success": True})
             response.set_cookie(key="sid", value=hash_key)
             return response
