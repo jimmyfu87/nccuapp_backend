@@ -4,7 +4,7 @@ import logging
 from sqlalchemy import create_engine
 
 # web_crawl_url
-web_crawl_url = "https://ue2flzhpcb.execute-api.ap-northeast-1.amazonaws.com/default/web_crawl"
+# web_crawl_url = "https://ue2flzhpcb.execute-api.ap-northeast-1.amazonaws.com/default/web_crawl"
 
 # MySQL
 root_url = "http://127.0.0.1:8000/"

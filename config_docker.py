@@ -5,16 +5,16 @@ from sqlalchemy import create_engine
 
 # MySQL
 root_url = "http://127.0.0.1:8000/"
-db_host = 'host.docker.internal'
-# db_host = 'localhost'
+# db_host = 'host.docker.internal'
+db_host = 'database-1.c67eqxezsx2s.ap-northeast-1.rds.amazonaws.com'
 db_username = 'root'
-db_password = 'example'
+db_password = 'nccuapp105306'
 db_port = '3306'
 db_name = 'nccuapp'
 db_url = "mysql+pymysql://{username}:{password}@{host}:{port}/{db_name}".format(username=db_username, password=db_password,
                                                                                 host=db_host, port=db_port, db_name=db_name)
-engine = create_engine(db_url)   
-
+engine = create_engine(db_url)  
+login_time_sec = 180
 
 # Redis
 redis_url = "host.docker.internal"
