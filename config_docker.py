@@ -17,7 +17,8 @@ engine = create_engine(db_url)
 login_time_sec = 180
 
 # Redis
-redis_url = "host.docker.internal"
+# redis_url = "host.docker.internal"
+redis_url = "nccuappredis-001.vfvg8p.0001.apne1.cache.amazonaws.com"
 # redis_url = "localhost"
 redis_port = 6379
 pool = redis.ConnectionPool(host=redis_url, port=redis_port, decode_responses=True)
