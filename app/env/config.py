@@ -4,12 +4,12 @@ import logging
 from sqlalchemy import create_engine
 
 # web_crawl_url
-# web_crawl_url = "https://ue2flzhpcb.execute-api.ap-northeast-1.amazonaws.com/default/web_crawl"
+web_crawl_url = "https://7z0lvhbe47.execute-api.ap-northeast-1.amazonaws.com/default/web_crawl"
 
 # MySQL
 root_url = "http://127.0.0.1:8000/"
 # db_host = 'host.docker.internal'
-db_host = 'database-1.c67eqxezsx2s.ap-northeast-1.rds.amazonaws.com'
+db_host = 'database.c67eqxezsx2s.ap-northeast-1.rds.amazonaws.com'
 db_username = 'root'
 db_password = 'nccuapp105306'
 db_port = '3306'
