@@ -2,8 +2,7 @@ from fastapi import APIRouter, Body, Request
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from ..env.config import root_url
-import requests 
-import json
+import requests, json, httpx, asyncio
 from fastapi.responses import HTMLResponse
 from ..dao.product_dao import get_member_product_dao, delete_product_dao, Product, \
                               add_product_topool_dao, check_no_repeat_product_dao, update_one_product_dao, \
@@ -114,22 +113,17 @@ def update_one_product(request: Request, input_url: str = Body(...), id: str =Bo
                 change = False
             else:
                 change = True
-            try:
-                try: 
-                    response = update_one_product_dao(input_product, id)
-                    if change:
-                        response['change'] = True
-                        response['message'] = response['message'] + '\n' + 'Product info has changed!'
-                    else:
-                        response['change'] = False
-                        response['message'] = response['message'] + '\n' + 'No product info changes!'
-                    logger.info('response:{}'.format(response))
-                    return JSONResponse(content=response)
-                except Exception as e:
-                    logger.error("Error occurs when update_one_product(), error message: {}".format(e))
-                    return JSONResponse(content={'success': False, 'message': "Error occurs when update one product"})
-                
-            except Exception as e: 
+            try: 
+                response = update_one_product_dao(input_product, id)
+                if change:
+                    response['change'] = True
+                    response['message'] = response['message'] + '\n' + 'Product info has changed!'
+                else:
+                    response['change'] = False
+                    response['message'] = response['message'] + '\n' + 'No product info changes!'
+                logger.info('response:{}'.format(response))
+                return JSONResponse(content=response)
+            except Exception as e:
                 logger.error("Error occurs when update_one_product(), error message: {}".format(e))
                 return JSONResponse(content={'success': False, 'message': "Error occurs when update one product"})
         else:
@@ -141,10 +135,17 @@ def update_one_product(request: Request, input_url: str = Body(...), id: str =Bo
         logger.error('Error occurs when update_one_product(), error message: {}'.format(verify_response['message']))
         return JSONResponse(content={'message': 'Error occurs when update one product, please login again'})
          
-
+async def update_one_product(input_url: str, product_id: str, cookies: dict):
+    async with httpx.AsyncClient(timeout=20) as client:
+        response = await client.put(
+            root_url + 'product/update_one_product',
+            json={'input_url': input_url, 'id': product_id},
+            cookies=cookies
+        )
+    return response.json()
 
 @router.put("/update_all_product", tags=['product'])
-def update_all_product(request: Request):
+async def update_all_product(request: Request):
     logger.info('update_all_product()')
     verify_response = verify_cookies(request)
     if verify_response['success']:
@@ -154,19 +155,25 @@ def update_all_product(request: Request):
         if len(original_products) == 0:
             return JSONResponse(content={'success': False, 'message': "There is no product in your pool."})
         try:
-            for original_product in original_products:
-                update_one_product_url = root_url + 'product/update_one_product'
-                response = requests.put(update_one_product_url, json = {'input_url':original_product['product_url'], 'id':original_product['id']}, cookies=request.cookies)
-                response = json.loads(response.text)
-                if response['change']:
-                    change_product = change_product + 1
-            response['success'] = True
-            response['message'] = 'Update all product successfully'
-            response['message'] = response['message'] + '\n' + '{} product info has changed!'.format(change_product)
-            logger.info('response:{}'.format(response))
-            return JSONResponse(content=response)
+            async with httpx.AsyncClient(timeout=len(original_products)*20) as client:
+                tasks = []
+                for original_product in original_products:
+                    task = update_one_product(
+                        original_product['product_url'],
+                        original_product['id'],
+                        request.cookies
+                    )
+                    tasks.append(task)
+                responses = await asyncio.gather(*tasks)
+                change_product = sum(1 for response in responses if response['change'])
+                response = {}
+                response['success'] = True
+                response['message'] = 'Update all product successfully'
+                response['message'] = response['message'] + '\n' + '{} product info has changed!'.format(change_product)
+                logger.info('response:{}'.format(response))
+                return JSONResponse(content=response)
         except Exception as e:
-            logger.error("Error occurs when update_all_product(), error message: {}".format(e))
+            logger.error("Error occurs when update_all_product(), error message: {}".format(repr(e)))
             return JSONResponse(content={'success': False, 'message': "Error occurs when update all product, please update product one by one."})
 
     else:
@@ -174,3 +181,33 @@ def update_all_product(request: Request):
         return JSONResponse(content={'message': 'Error occurs when update all products, please login again'})
 
 
+#同步的API
+# @router.put("/update_all_product", tags=['product'])
+# def update_all_product(request: Request):
+#     logger.info('update_all_product()')
+#     verify_response = verify_cookies(request)
+#     if verify_response['success']:
+#         member_id = verify_response['member_id']
+#         original_products = get_member_product_dao(member_id)
+#         change_product = 0
+#         if len(original_products) == 0:
+#             return JSONResponse(content={'success': False, 'message': "There is no product in your pool."})
+#         try:
+#             for original_product in original_products:
+#                 update_one_product_url = root_url + 'product/update_one_product'
+#                 response = requests.put(update_one_product_url, json = {'input_url':original_product['product_url'], 'id':original_product['id']}, cookies=request.cookies)
+#                 response = json.loads(response.text)
+#                 if response['change']:
+#                     change_product = change_product + 1
+#             response['success'] = True
+#             response['message'] = 'Update all product successfully'
+#             response['message'] = response['message'] + '\n' + '{} product info has changed!'.format(change_product)
+#             logger.info('response:{}'.format(response))
+#             return JSONResponse(content=response)
+#         except Exception as e:
+#             logger.error("Error occurs when update_all_product(), error message: {}".format(e))
+#             return JSONResponse(content={'success': False, 'message': "Error occurs when update all product, please update product one by one."})
+
+#     else:
+#         logger.error('Error occurs when update_all_product(), error message: {}'.format(verify_response['message']))
+#         return JSONResponse(content={'message': 'Error occurs when update all products, please login again'})
