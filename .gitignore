@@ -4,3 +4,6 @@ php/
 receive_image/
 php_finish/
 .vscode/
+config_docker.py
+app/env/config
+config_docker.py

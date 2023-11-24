@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Body, Request
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
-from ..env.config import root_url
-import requests, json, httpx, asyncio
+from app.env.config import root_url
+import httpx, asyncio
 from fastapi.responses import HTMLResponse
 from ..dao.product_dao import get_member_product_dao, delete_product_dao, Product, \
                               add_product_topool_dao, check_no_repeat_product_dao, update_one_product_dao, \
